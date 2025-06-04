@@ -1,71 +1,64 @@
 #!/bin/bash
 
-echo "🚀 Initialisation de la configuration Git..."
+# This script sets up Git with best practices configuration for a developer.
 
-# 1. Configuration de l'identité
-git config --global user.name "Ton Nom"
-git config --global user.email "ton.email@exemple.com"
+# Prompt for user name and email
+echo "Setting up Git configuration..."
+read -p "Enter your name (for Git commits): " GIT_NAME
+read -p "Enter your email (for Git commits): " GIT_EMAIL
 
-# 2. Couleurs et affichage
+# Configure user name and email
+git config --global user.name "$GIT_NAME"
+git config --global user.email "$GIT_EMAIL"
+
+# Set the default text editor for Git
+git config --global core.editor "code --wait" # You can replace "code --wait" with your preferred editor (e.g., nano, vim)
+
+# Enable colored output for Git commands
 git config --global color.ui auto
-git config --global color.status auto
-git config --global color.branch auto
-git config --global color.diff auto
-git config --global core.pager "less -FRX"
 
-# 3. Éditeur par défaut
-git config --global core.editor "code --wait"  # Ou nano, vim, etc.
+# Set up helpful aliases
+git config --global alias.st "status"
+git config --global alias.co "checkout"
+git config --global alias.br "branch"
+git config --global alias.cm "commit"
+git config --global alias.df "diff"
+git config --global alias.lg "log --oneline --graph --decorate --all"
 
-# 4. Gestion des retours chariot
-git config --global core.autocrlf input  # input sur mac/linux, true sur Windows
-git config --global core.safecrlf true
+# Set up default branch name for new repositories
+git config --global init.defaultBranch main
 
-# 5. Rebase et pull intelligents
-git config --global pull.rebase false
-git config --global rebase.autoStash true
-git config --global merge.ff only
+# Enable credential caching for HTTPS (adjust cache timeout as needed)
+git config --global credential.helper "cache --timeout=3600" # Cache credentials for 1 hour
 
-# 6. Ignorer les fichiers système globaux
-echo ".DS_Store" >> ~/.gitignore_global
-echo "Thumbs.db" >> ~/.gitignore_global
-git config --global core.excludesfile ~/.gitignore_global
+# Enable automatic rebase for pull
+git config --global pull.rebase true
 
-# 7. Alias pratiques
-git config --global alias.st status
-git config --global alias.co checkout
-git config --global alias.ci commit
-git config --global alias.br branch
-git config --global alias.last 'log -1 HEAD'
-git config --global alias.lg "log --oneline --graph --all --decorate"
-git config --global alias.undo "reset --soft HEAD~1"
-git config --global alias.amend "commit --amend --no-edit"
-git config --global alias.hist "log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short"
+# Optimize Git performance for large repositories
+git config --global core.compression 9
 
-# 8. Push par défaut
-git config --global push.default simple
+# Enable sparse checkout for performance
+git config --global core.sparseCheckout true
 
-# 9. GPG (optionnel)
-# git config --global user.signingkey <gpg-key-id>
-# git config --global commit.gpgsign true
+# Configure Git to handle line endings (use 'input' for macOS/Linux, 'true' for Windows)
+git config --global core.autocrlf input
 
-# 10. SSH (affichage clé si elle existe)
-if [ -f "$HOME/.ssh/id_ed25519.pub" ]; then
-  echo "📎 Clé publique SSH détectée :"
-  cat ~/.ssh/id_ed25519.pub
-else
-  echo "🔐 Aucune clé SSH trouvée. Vous pouvez en générer une avec :"
-  echo "ssh-keygen -t ed25519 -C \"ton.email@exemple.com\""
+# Add useful merge and diff tools (optional)
+git config --global merge.tool vimdiff
+git config --global diff.tool vimdiff
+
+# Set up global .gitignore file
+read -p "Do you want to set up a global .gitignore file? (y/n): " SETUP_GITIGNORE
+if [[ "$SETUP_GITIGNORE" == "y" || "$SETUP_GITIGNORE" == "Y" ]]; then
+    GITIGNORE_PATH="$HOME/.gitignore_global"
+    echo "*.log" >> $GITIGNORE_PATH
+    echo "node_modules/" >> $GITIGNORE_PATH
+    echo ".DS_Store" >> $GITIGNORE_PATH
+    echo "Thumbs.db" >> $GITIGNORE_PATH
+    git config --global core.excludesfile "$GITIGNORE_PATH"
+    echo "Global .gitignore file set up at $GITIGNORE_PATH"
 fi
 
-# 11. Détection des outils
-echo "✅ État des outils :"
-command -v git && git --version
-command -v code && echo "✔️ VS Code détecté"
-command -v gh && echo "✔️ GitHub CLI détecté"
-
-echo "🎉 Configuration Git terminée !"
-
-
-
-chmod +x git-setup.sh
-./git-setup.sh
+# Display the final configuration
+echo "Git configuration complete. Here are your global settings:"
+git config --list --global
