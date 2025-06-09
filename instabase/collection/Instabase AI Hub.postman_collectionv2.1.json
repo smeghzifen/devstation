@@ -1,0 +1,1666 @@
+{
+	"info": {
+		"_postman_id": "4049b657-0929-472d-95b7-70dba22b45c4",
+		"name": "Instabase AI Hub",
+		"description": "Instabase AI Hub brings you the power of large language models (LLMs) so that you can understand and get information from any kind of document: from PDFs and Excel files, to legal and government forms, to images of handwritten documents.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1249143",
+		"_collection_link": "https://www.postman.com/instabase/instabase-ai-hub/collection/gs8izg9/instabase-ai-hub?action=share&source=collection_link&creator=1249143"
+	},
+	"item": [
+		{
+			"name": "App Run",
+			"item": [
+				{
+					"name": "Create batch",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Store batch id in env var",
+									"var responseBody = pm.response.json();",
+									"var batchId = responseBody.id;",
+									"pm.collectionVariables.set(\"last_batch_ID\", batchId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"my new batch\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/v2/batches",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"batches"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload file to Batch",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Get the request URL",
+									"var requestUrl = pm.request.url.toString();",
+									"",
+									"var uploadedDirectory = requestUrl.substr(0, requestUrl.lastIndexOf(\"/\"))",
+									"var splitDrirectory = uploadedDirectory.split(\"v2/files/\")",
+									"",
+									"// Set the collection variable",
+									"pm.collectionVariables.set(\"last_uploaded_directory\", decodeURI(splitDrirectory[1]));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": ""
+							}
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/v2/batches/{{last_batch_ID}}/files/test.pdf",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"batches",
+								"{{last_batch_ID}}",
+								"files",
+								"test.pdf"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Run App",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Store the job_id in an environment variable",
+									"var responseBody = pm.response.json();",
+									"var jobId = responseBody.id;",
+									"pm.collectionVariables.set(\"last_run_ID\", jobId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let context = pm.variables.get(\"CONTEXT\");",
+									"if (!context) {",
+									"    pm.request.headers.remove('IB-Context');",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"batch_id\": {{last_batch_ID}},\n    \"app_name\": \"Doc Summarization\",\n    \"owner\": \"\" // Currently supports 'instabase' or leave blank for custom apps created on your account.\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/v2/apps/runs",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"apps",
+								"runs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Run App by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Store the job_id in an environment variable",
+									"var responseBody = pm.response.json();",
+									"var jobId = responseBody.id;",
+									"pm.collectionVariables.set(\"last_run_ID\", jobId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let context = pm.variables.get(\"CONTEXT\");",
+									"if (!context) {",
+									"    pm.request.headers.remove('IB-Context');",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"batch_id\": {{last_batch_ID}},\n    \"app_id\": \"<APP-ID>\",\n    \"owner\": \"\" // Currently supports 'instabase' or leave blank for custom apps created on your account.\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/v2/apps/runs",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"apps",
+								"runs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Run Deployment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Store the job_id in an environment variable",
+									"var responseBody = pm.response.json();",
+									"var runId = responseBody.id;",
+									"pm.collectionVariables.set(\"last_run_ID\", runId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let context = pm.variables.get(\"CONTEXT\");",
+									"if (!context) {",
+									"    pm.request.headers.remove('IB-Context');",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"batch_id\": {{last_batch_ID}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/v2/apps/deployments/:deployment-id/runs",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"apps",
+								"deployments",
+								":deployment-id",
+								"runs"
+							],
+							"variable": [
+								{
+									"key": "deployment-id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Run status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_ROOT}}/v2/apps/runs/{{last_run_ID}}",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"apps",
+								"runs",
+								"{{last_run_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Run results",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_ROOT}}/v2/apps/runs/{{last_run_ID}}/results",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"apps",
+								"runs",
+								"{{last_run_ID}}",
+								"results"
+							],
+							"query": [
+								{
+									"key": "include_source_info",
+									"value": "true",
+									"description": "Include source coordinates for extracted fields",
+									"disabled": true
+								},
+								{
+									"key": "include_confidence_scores",
+									"value": "true",
+									"description": "Include model confidence scores for classification and extraction",
+									"disabled": true
+								},
+								{
+									"key": "include_review_results",
+									"value": "true",
+									"description": "Include human review results such as edit history and review completion",
+									"disabled": true
+								},
+								{
+									"key": "include_validation_results",
+									"value": "true",
+									"description": "Include validation results for extracted fields and classification",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List runs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_ROOT}}/v2/apps/runs",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"apps",
+								"runs"
+							],
+							"query": [
+								{
+									"key": "app_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "app_name",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "deployment_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "username",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "run_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "status",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "output_repo",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "from_timestamp",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "to_timestamp",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "sort_by",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "order",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete run",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{API_ROOT}}/v2/apps/runs/:run-id?delete_db_data=true&delete_input=true&delete_output=true&delete_logs=true",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"apps",
+								"runs",
+								":run-id"
+							],
+							"query": [
+								{
+									"key": "delete_db_data",
+									"value": "true"
+								},
+								{
+									"key": "delete_input",
+									"value": "true"
+								},
+								{
+									"key": "delete_output",
+									"value": "true"
+								},
+								{
+									"key": "delete_logs",
+									"value": "true"
+								}
+							],
+							"variable": [
+								{
+									"key": "run-id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Apps help you automate your repeatable document processing workflows."
+		},
+		{
+			"name": "Converse",
+			"item": [
+				{
+					"name": "Create Conversation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Get the ID value from the response",
+									"var responseBody = pm.response.json();",
+									"var conversationId = responseBody.id;",
+									"",
+									"// Set the conversation ID as an environment variable",
+									"pm.collectionVariables.set(\"last_created_conversation\", conversationId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let context = pm.variables.get(\"CONTEXT\");",
+									"if (!context) {",
+									"    pm.request.headers.remove('IB-Context');",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "files",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "name",
+									"value": "Sample conversation",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Sample description",
+									"type": "text"
+								},
+								{
+									"key": "org",
+									"value": "{{ORGANIZATION_ID}}",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "workspace",
+									"value": "{{WORKSPACE}}",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/v2/conversations",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"conversations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Conversation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Parse the response body",
+									"var responseBody = pm.response.json();",
+									"",
+									"// Get the id of the first document in the documents list",
+									"var firstDocumentId = responseBody.documents[0].id;",
+									"",
+									"// Set the id as an environment variable called last_uploaded_document",
+									"pm.collectionVariables.set(\"last_uploaded_document\", firstDocumentId);",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let context = pm.variables.get(\"CONTEXT\");",
+									"if (!context) {",
+									"    pm.request.headers.remove('IB-Context');",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_ROOT}}/v2/conversations/:last_created_conversation",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"conversations",
+								":last_created_conversation"
+							],
+							"variable": [
+								{
+									"key": "last_created_conversation",
+									"value": "{{last_created_conversation}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Ask a Question",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let context = pm.variables.get(\"CONTEXT\");",
+									"if (!context) {",
+									"    pm.request.headers.remove('IB-Context');",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"question\": \"What is the document type?\",\n    \"document_ids\": [{{last_uploaded_document}}], // Put your document id from the 'Get Conversation' call. Only one document per call is supported\n    \"model\": \"default\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/v2/conversations/:last_created_conversation/prompts",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"conversations",
+								":last_created_conversation",
+								"prompts"
+							],
+							"variable": [
+								{
+									"key": "last_created_conversation",
+									"value": "{{last_created_conversation}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Conversations",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_ROOT}}/v2/conversations",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"conversations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Documents",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "files",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/v2/conversations/:last_created_conversation/documents",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"conversations",
+								":last_created_conversation",
+								"documents"
+							],
+							"variable": [
+								{
+									"key": "last_created_conversation",
+									"value": "{{last_created_conversation}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Conversation",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{API_ROOT}}/v2/conversations/:last_created_conversation?name=sample&description=sample description",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"conversations",
+								":last_created_conversation"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "sample"
+								},
+								{
+									"key": "description",
+									"value": "sample description"
+								}
+							],
+							"variable": [
+								{
+									"key": "last_created_conversation",
+									"value": "{{last_created_conversation}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Conversation",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{API_ROOT}}/v2/conversations/:last_created_conversation",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"conversations",
+								":last_created_conversation"
+							],
+							"variable": [
+								{
+									"key": "last_created_conversation",
+									"value": "{{last_created_conversation}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Converse allows you to have a conversation with your documents, getting on-demand information from documents of nearly any type or format."
+		},
+		{
+			"name": "Advanced",
+			"item": [
+				{
+					"name": "Batches",
+					"item": [
+						{
+							"name": "List Batches",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_ROOT}}/v2/batches",
+									"host": [
+										"{{API_ROOT}}"
+									],
+									"path": [
+										"v2",
+										"batches"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get file from Batch",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Get the request URL",
+											"var requestUrl = pm.request.url.toString();",
+											"",
+											"var uploadedDirectory = requestUrl.substr(0, requestUrl.lastIndexOf(\"/\"))",
+											"var splitDrirectory = uploadedDirectory.split(\"v2/files/\")",
+											"",
+											"// Set the collection variable",
+											"pm.collectionVariables.set(\"last_uploaded_directory\", decodeURI(splitDrirectory[1]));"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "file",
+									"file": {
+										"src": "/Users/wilsonjusuf/Desktop/5412custbill10092023.pdf"
+									}
+								},
+								"url": {
+									"raw": "{{API_ROOT}}/v2/batches/{{last_batch_ID}}/files/test.pdf",
+									"host": [
+										"{{API_ROOT}}"
+									],
+									"path": [
+										"v2",
+										"batches",
+										"{{last_batch_ID}}",
+										"files",
+										"test.pdf"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete file from Batch",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Get the request URL",
+											"var responseLocation = pm.response.headers.get('Location')",
+											"if (responseLocation.includes('https://localhost')) {",
+											"    responseLocation = responseLocation.replace('https://', 'http://')",
+											"}",
+											"",
+											"// Set the collection variable",
+											"pm.collectionVariables.set(\"last_batches_api_delete_url\", responseLocation);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "file",
+									"file": {
+										"src": ""
+									}
+								},
+								"url": {
+									"raw": "{{API_ROOT}}/v2/batches/{{last_batch_ID}}/files/test.pdf",
+									"host": [
+										"{{API_ROOT}}"
+									],
+									"path": [
+										"v2",
+										"batches",
+										"{{last_batch_ID}}",
+										"files",
+										"test.pdf"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete multiple files from Batch",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Get the request URL",
+											"var responseLocation = pm.response.headers.get('Location')",
+											"if (responseLocation.includes('https://localhost')) {",
+											"    responseLocation = responseLocation.replace('https://', 'http://')",
+											"}",
+											"",
+											"// Set the collection variable",
+											"pm.collectionVariables.set(\"last_batches_api_delete_url\", responseLocation);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"filenames\": [\n        \"test.pdf\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_ROOT}}/v2/batches/{{last_batch_ID}}/files",
+									"host": [
+										"{{API_ROOT}}"
+									],
+									"path": [
+										"v2",
+										"batches",
+										"{{last_batch_ID}}",
+										"files"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update batch",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"my newest newest batch\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_ROOT}}/v2/batches/{{last_batch_ID}}",
+									"host": [
+										"{{API_ROOT}}"
+									],
+									"path": [
+										"v2",
+										"batches",
+										"{{last_batch_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get batch",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Store batch id in env var",
+											"var responseBody = pm.response.json();",
+											"var repoOwner = responseBody.repo_owner;",
+											"var mountPointName = responseBody.mount_point;",
+											"var workspaceName = responseBody.workspace;",
+											"var pathSuffix = responseBody.path_suffix;",
+											"",
+											"pm.collectionVariables.set(\"last_batch_folder\", `${repoOwner}/${workspaceName}/fs/${mountPointName}/${pathSuffix}`);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_ROOT}}/v2/batches/{{last_batch_ID}}",
+									"host": [
+										"{{API_ROOT}}"
+									],
+									"path": [
+										"v2",
+										"batches",
+										"{{last_batch_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete batch",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{API_ROOT}}/v2/batches/{{last_batch_ID}}",
+									"host": [
+										"{{API_ROOT}}"
+									],
+									"path": [
+										"v2",
+										"batches",
+										"{{last_batch_ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Poll deletion job",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{last_batches_api_delete_url}}",
+									"host": [
+										"{{last_batches_api_delete_url}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"description": "Methods in the Advanced folder lets you interact with the underlying file system in AIHub.\n\nYou will find these methods useful if you are using a custom drive mounted to AIHub."
+		},
+		{
+			"name": "Queries",
+			"item": [
+				{
+					"name": "Send Chatbot Query",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Get the ID value from the response",
+									"var responseBody = pm.response.json();",
+									"var queryId = responseBody.query_id;",
+									"",
+									"// Set the query ID as an environment variable",
+									"pm.collectionVariables.set(\"last_created_query\", queryId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": \"who is the sender?\",\n    \"model_name\": \"multistep-lite\",\n    \"include_source_info\": true,\n    \"source_app\": {\n        \"type\": \"CHATBOT\",\n        \"id\": \"<CHATBOT-ID>\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/v2/queries",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"queries"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Query status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_ROOT}}/v2/queries/:last_created_query",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"queries",
+								":last_created_query"
+							],
+							"variable": [
+								{
+									"key": "last_created_query",
+									"value": "{{last_created_query}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "App Run Deprecated",
+			"item": [
+				{
+					"name": "Upload File",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Get the request URL",
+									"var requestUrl = pm.request.url.toString();",
+									"",
+									"var uploadedDirectory = requestUrl.substr(0, requestUrl.lastIndexOf(\"/\"))",
+									"var splitDirectory = uploadedDirectory.split(\"v2/files/\")",
+									"",
+									"// Set the collection variable",
+									"pm.collectionVariables.set(\"last_uploaded_directory\", decodeURI(splitDirectory[1]));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": "tR9ZAVD4e/Checks 00003 copy 6.pdf"
+							}
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/v2/files/:path",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"files",
+								":path"
+							],
+							"variable": [
+								{
+									"key": "path",
+									"value": "{{USER_ID}}/my-repo/fs/Instabase Drive/test/test.pdf",
+									"description": "File paths are formatted as follows:\n\nFor Community accounts:\n\nInstabase Drive: USER-ID/my-repo/fs/Instabase Drive/INPUT_FOLDER/FILENAME.pdf\n\nExternal drive: USER-ID/my-repo/fs/DRIVE-NAME/INPUT_FOLDER/FILENAME.pdf\n\nYou can find your user ID on the APIs settings page.\n\nFor Commercial accounts:\n\nInstabase Drive: ORG-ID/WORKSPACE/fs/Instabase Drive/INPUT_FOLDER/FILENAME.pdf\n\nExternal drives: ORG-ID/WORKSPACE/fs/DRIVE-NAME/INPUT_FOLDER/FILENAME.pdf"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload File (Commercial)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Get the request URL",
+									"var requestUrl = pm.request.url.toString();",
+									"",
+									"var uploadedDirectory = requestUrl.substr(0, requestUrl.lastIndexOf(\"/\"))",
+									"var splitDirectory = uploadedDirectory.split(\"v2/files/\")",
+									"",
+									"// Set the collection variable",
+									"pm.collectionVariables.set(\"last_uploaded_directory\", decodeURI(splitDirectory[1]));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": "tR9ZAVD4e/Checks 00003 copy 6.pdf"
+							}
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/v2/files/:path",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"files",
+								":path"
+							],
+							"variable": [
+								{
+									"key": "path",
+									"value": "{{ORGANIZATION_ID}}/{{WORKSPACE}}/fs/{{DRIVE_NAME}}/test/test.pdf",
+									"description": "File paths are formatted as follows:\n\nFor Community accounts:\n\nInstabase Drive: USER-ID/my-repo/fs/Instabase Drive/INPUT_FOLDER/FILENAME.pdf\n\nExternal drive: USER-ID/my-repo/fs/DRIVE-NAME/INPUT_FOLDER/FILENAME.pdf\n\nYou can find your user ID on the APIs settings page.\n\nFor Commercial accounts:\n\nInstabase Drive: ORG-ID/WORKSPACE/fs/Instabase Drive/INPUT_FOLDER/FILENAME.pdf\n\nExternal drives: ORG-ID/WORKSPACE/fs/DRIVE-NAME/INPUT_FOLDER/FILENAME.pdf"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Run App by ID Sync",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Store the job_id in an environment variable",
+									"var responseBody = pm.response.json();",
+									"var jobId = responseBody.job_id;",
+									"pm.collectionVariables.set(\"last_job_ID\", jobId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"files\": [\n        {\n            \"file_name\": \"{{sample_file_name}}\",\n            \"file_content\": \"{{sample_file_b64_encoding}}\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/v2/zero-shot-idp/projects/app/:app_id/run/sync",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v2",
+								"zero-shot-idp",
+								"projects",
+								"app",
+								":app_id",
+								"run",
+								"sync"
+							],
+							"variable": [
+								{
+									"key": "app_id",
+									"value": "",
+									"description": "App ID"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Job Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Retrieve the value of \"state\" from the response",
+									"var responseBody = pm.response.json();",
+									"var state = responseBody.state;",
+									"",
+									"// Check if the value of \"state\" is \"DONE\"",
+									"if (state === \"DONE\") {",
+									"    // Retrieve the value of \"output_folder\" from the response",
+									"    var outputFolder = responseBody.results[0].output_folder;",
+									"",
+									"    // Set the environment variable \"last_output_folder\" to the value of \"output_folder\"",
+									"    pm.collectionVariables.set(\"last_output_folder\", outputFolder);",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_ROOT}}/v1/jobs/status?job_id={{last_job_ID}}&type=flow",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v1",
+								"jobs",
+								"status"
+							],
+							"query": [
+								{
+									"key": "job_id",
+									"value": "{{last_job_ID}}",
+									"description": "Job ID returned by the run solution API call"
+								},
+								{
+									"key": "type",
+									"value": "flow"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Results",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ibresults_path\": \"{{last_output_folder}}/batch.ibflowresults\",\n  \"options\": {\n    \"refined_phrases_features\": [],\n    \"include_page_layouts\": false,\n    \"include_checkpoint_results\" : true\n  },\n  \"file_offset\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/v1/flow_binary/results",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"v1",
+								"flow_binary",
+								"results"
+							]
+						},
+						"description": "This API has been deprecated. Use the Get Run results API instead."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Secrets",
+			"item": [
+				{
+					"name": "List Secrets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_ROOT}}/api/v2/aihub/secrets?alias={{alias}}&workspace={{workspace}}",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"aihub",
+								"secrets"
+							],
+							"query": [
+								{
+									"key": "alias",
+									"value": "{{alias}}",
+									"description": "Optional param (will get all secrets in workspace / org)"
+								},
+								{
+									"key": "workspace",
+									"value": "{{workspace}}",
+									"description": "Optional param if user is org admin, if not specified, will give secrets for all users"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Secret",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"alias\": \"{{secret_alias}}\",\n    \"allowed_workspaces_type\": {{allowed_workspace_type}}, // ALL | SOME | NONE\n    \"allowed_workspaces\": {{allowed_workspaces}}, // only specified if allowed_workspaces_type == SOME\n    \"description\": \"{{secret description}}\", // Optional\n    \"value\": \"{{secret_value}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/api/v2/aihub/secrets",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"aihub",
+								"secrets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Secret",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"alias\": \"{{secret_alias}}\",\n    \"allowed_workspaces_type\": {{allowed_workspace_type}}, // ALL | SOME | NONE\n    \"allowed_workspaces\": {{allowed_workspaces}}, // only specified if allowed_workspaces_type == SOME\n    \"description\": \"{{secret description}}\", // Optional\n    \"value\": \"{{secret_value}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/api/v2/aihub/secrets",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"aihub",
+								"secrets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Secret",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"alias\": \"{{alias}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_ROOT}}/api/v2/aihub/secrets",
+							"host": [
+								"{{API_ROOT}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"aihub",
+								"secrets"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{API_KEY}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"let context = pm.variables.get(\"CONTEXT\");",
+					"if (context) {",
+					"    pm.request.headers.add({",
+					"        key: 'IB-Context',",
+					"        value: '{{CONTEXT}}'",
+					"    });",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "API_ROOT",
+			"value": "https://aihub.instabase.com/api"
+		},
+		{
+			"key": "API_KEY",
+			"value": "YOUR_API_KEY_HERE"
+		},
+		{
+			"key": "CONTEXT",
+			"value": "USER_ID or ORGANIZATION_ID (Only for AIHub Commercial)"
+		},
+		{
+			"key": "USER_ID",
+			"value": "YOUR_USER_ID_HERE"
+		},
+		{
+			"key": "ORGANIZATION_ID",
+			"value": "YOUR_ORGANIZATION_ID_HERE (Only for AIHub Commercial)"
+		},
+		{
+			"key": "WORKSPACE",
+			"value": "YOUR_WORKSPACE_HERE (Only for AIHub Commercial)"
+		},
+		{
+			"key": "DRIVE_NAME",
+			"value": "Instabase Drive"
+		},
+		{
+			"key": "last_uploaded_directory",
+			"value": ""
+		},
+		{
+			"key": "last_run_ID",
+			"value": ""
+		},
+		{
+			"key": "last_output_folder",
+			"value": ""
+		},
+		{
+			"key": "last_created_conversation",
+			"value": ""
+		},
+		{
+			"key": "last_batch_folder",
+			"value": ""
+		},
+		{
+			"key": "last_batch_ID",
+			"value": ""
+		},
+		{
+			"key": "last_batches_api_delete_url",
+			"value": ""
+		},
+		{
+			"key": "last_job_ID",
+			"value": ""
+		},
+		{
+			"key": "last_uploaded_document",
+			"value": ""
+		},
+		{
+			"key": "last_created_query",
+			"value": ""
+		}
+	]
+}
