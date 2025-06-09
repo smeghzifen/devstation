@@ -1,0 +1,1 @@
+https://github.com/instabase/aihub-openapi/blob/fs-api/openapi.yaml
