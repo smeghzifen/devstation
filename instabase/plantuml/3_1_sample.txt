@@ -1,0 +1,109 @@
+@startuml
+actor Fournisseur
+participant "API Chapeau" as APIChapeau
+participant "Instabase" as IA
+participant "Brique B (Montage)" as Montage
+
+Fournisseur -> APIChapeau: Soumet 3-4 documents (Kbis, Bilan, RIB)
+activate APIChapeau
+
+' Étape 1 : Créer un batch
+APIChapeau -> IA: POST /v2/batches {"name": "financement-validation"}
+note right: Headers: Authorization: Bearer ${API_TOKEN}, IB-Context: ${IB_CONTEXT}
+activate IA
+IA --> APIChapeau: 200 OK, {"id": "batch_123456"}
+deactivate IA
+
+' Étape 2 : Téléverser les documents
+loop pour chaque document (kbis.pdf, bilan.pdf, rib.pdf)
+  APIChapeau -> IA: PUT /v2/batches/batch_123456/files/{filename}
+  note right: Content-Type: application/octet-stream, fichier binaire
+  activate IA
+  IA --> APIChapeau: 204 No Content
+  deactivate IA
+end loop
+
+' Étape 3 : Vérifier l'état du batch
+APIChapeau -> IA: GET /v2/batches/batch_123456
+activate IA
+IA --> APIChapeau: 200 OK, {"id": "batch_123456", "name": "financement-validation", ...}
+deactivate IA
+
+' Étape 4 : Lancer la classification
+APIChapeau -> IA: POST /v2/apps/runs {"batch_id": "batch_123456", "app_name": "app_doc_classification"}
+activate IA
+IA --> APIChapeau: 200 OK, {"id": "run_class_456", "status": "RUNNING"}
+deactivate IA
+
+' Étape 5 : Vérifier le statut de la classification
+loop jusqu'à completion
+  APIChapeau -> IA: GET /v2/apps/runs/run_class_456
+  activate IA
+  IA --> APIChapeau: 200 OK, {"id": "run_class_456", "status": "COMPLETE"}
+  deactivate IA
+end loop
+
+' Étape 6 : Récupérer les résultats de classification
+APIChapeau -> IA: GET /v2/apps/runs/run_class_456/results
+activate IA
+IA --> APIChapeau: 200 OK, {"files": [{"original_file_name": "kbis.pdf", "documents": [{"class_name": "Kbis"}]}]}
+deactivate IA
+
+' Étape 7 : Lancer l'extraction
+APIChapeau -> IA: POST /v2/apps/runs {"batch_id": "batch_123456", "app_name": "app_doc_extraction"}
+activate IA
+IA --> APIChapeau: 200 OK, {"id": "run_extract_789", "status": "RUNNING"}
+deactivate IA
+
+' Étape 8 : Vérifier le statut de l'extraction
+loop jusqu'à completion
+  APIChapeau -> IA: GET /v2/apps/runs/run_extract_789
+  activate IA
+  IA --> APIChapeau: 200 OK, {"id": "run_extract_789", "status": "COMPLETE"}
+  deactivate IA
+end loop
+
+' Étape 9 : Récupérer les résultats d'extraction
+APIChapeau -> IA: GET /v2/apps/runs/run_extract_789/results
+activate IA
+IA --> APIChapeau: 200 OK, {"files": [{"original_file_name": "rib.pdf", "documents": [{"fields": [{"field_name": "iban", "value": "FR76..."}]}]}]}
+deactivate IA
+
+' Étape 10 : Lancer la validation
+APIChapeau -> IA: POST /v2/apps/runs {"batch_id": "batch_123456", "app_name": "app_doc_validation"}
+activate IA
+IA --> APIChapeau: 200 OK, {"id": "run_valid_101", "status": "RUNNING"}
+deactivate IA
+
+' Étape 11 : Vérifier le statut de la validation
+loop jusqu'à completion
+  APIChapeau -> IA: GET /v2/apps/runs/run_valid_101
+  activate IA
+  IA --> APIChapeau: 200 OK, {"id": "run_valid_101", "status": "COMPLETE"}
+  deactivate IA
+end loop
+
+' Étape 12 : Récupérer les résultats de validation
+APIChapeau -> IA: GET /v2/apps/runs/run_valid_101/results?include_validation_results=true
+activate IA
+IA --> APIChapeau: 200 OK, {"files": [{"original_file_name": "rib.pdf", "documents": [{"validations": {"final_result_pass": false, "alerts": [{"msg": "Invalid IBAN format"}]}}]}]}
+deactivate IA
+
+' Étape 13 : Supprimer les documents invalides
+alt si document invalide
+  APIChapeau -> IA: DELETE /v2/batches/batch_123456/files/rib.pdf
+  activate IA
+  IA --> APIChapeau: 202 Accepted
+  deactivate IA
+  APIChapeau --> Fournisseur: Demande un nouveau RIB
+end alt
+
+' Étape 14 : Transférer les données validées
+APIChapeau -> Montage: Transmet données validées (types, données extraites, validations)
+activate Montage
+Montage -> Montage: Structure le dossier client
+Montage --> APIChapeau: False
+deactivate Montage
+APIChapeau --> Fournisseur: Notifie succès ou échec
+
+@enduml

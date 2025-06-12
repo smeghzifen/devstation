@@ -1,0 +1,25 @@
+@startuml
+actor Fournisseur
+participant "Brique A (GED)" as GED
+participant "IA (Instabase)" as IA
+participant "Brique B (Montage)" as Montage
+
+Fournisseur -> GED: Soumet 3-4 documents
+activate GED
+GED -> IA: Crée un batch (POST /v2/batches, {"name": "financement-batch"})
+activate IA
+IA --> GED: Retourne ID du batch (JSON: {"id": <batch_id>})
+GED -> IA: Télécharge documents (POST /v2/batches/<batch_id>/documents)
+IA -> IA: Analyse documents (extraction des données)
+GED -> IA: Récupère résultats (GET /v2/batches/<batch_id>/results)
+IA --> GED: Retourne données extraites (JSON: {"results": {...}})
+deactivate IA
+GED -> Montage: Transmet données extraites
+activate Montage
+Montage -> Montage: Structure le dossier client
+Montage --> GED: Confirme réception et traitement
+deactivate Montage
+GED --> Fournisseur: Notifie succès/échec
+deactivate GED
+
+@enduml
