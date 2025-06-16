@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "4049b657-0929-472d-95b7-70dba22b45c4",
-		"name": "Instabase AI Hub",
+		"name": "Instabase AI Hub V2",
 		"description": "Instabase AI Hub brings you the power of large language models (LLMs) so that you can understand and get information from any kind of document: from PDFs and Excel files, to legal and government forms, to images of handwritten documents.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
 		"_exporter_id": "1249143",

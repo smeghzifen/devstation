@@ -1,0 +1,15 @@
+{
+  "batches": [
+    {
+      "id": 1,
+      "name": "financement-validation",
+      "workspace": "said.meghzifene-ext_socgen.com",
+      "mount_point": "Instabase Drive",
+      "repo_owner": "specific-host",
+      "batch_owner": "said.meghzifene-ext_socgen.com",
+      "created_at_ms": 1749917476000,
+      "updated_at_ms": 1749917476000,
+      "path_suffix": "file-batches/00f439c6-bcb7-4e6d-82bb-a1b6f9adc10c"
+    }
+  ]
+}

@@ -1,0 +1,578 @@
+{
+  "info": {
+    "_postman_id": "f2a3b7e1-4c9d-4e7a-9f8b-3c4d5e6f7890",
+    "name": "AI Hub Document Processing",
+    "description": "Collection pour automatiser l'analyse de 4 documents avec l'API AI Hub d'Instabase.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Créer un batch",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"financement-batch\"}"
+        },
+        "url": {
+          "raw": "{{API_ROOT}}/v2/batches",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "batches"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Batch créé avec succès\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.exist;",
+              "    pm.collectionVariables.set(\"BATCH_ID\", jsonData.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Téléverser kbis.pdf",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/octet-stream"
+          }
+        ],
+        "body": {
+          "mode": "file",
+          "file": {
+            "src": "/path/to/kbis.pdf"
+          }
+        },
+        "url": {
+          "raw": "{{API_ROOT}}/v2/batches/{{BATCH_ID}}/files/kbis.pdf",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "batches", "{{BATCH_ID}}", "files", "kbis.pdf"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Téléverser bilan.pdf",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/octet-stream"
+          }
+        ],
+        "body": {
+          "mode": "file",
+          "file": {
+            "src": "/path/to/bilan.pdf"
+          }
+        },
+        "url": {
+          "raw": "{{API_ROOT}}/v2/batches/{{BATCH_ID}}/files/bilan.pdf",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "batches", "{{BATCH_ID}}", "files", "bilan.pdf"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Téléverser rib.pdf",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/octet-stream"
+          }
+        ],
+        "body": {
+          "mode": "file",
+          "file": {
+            "src": "/path/to/rib.pdf"
+          }
+        },
+        "url": {
+          "raw": "{{API_ROOT}}/v2/batches/{{BATCH_ID}}/files/rib.pdf",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "batches", "{{BATCH_ID}}", "files", "rib.pdf"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Téléverser contrat.pdf",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/octet-stream"
+          }
+        ],
+        "body": {
+          "mode": "file",
+          "file": {
+            "src": "/path/to/contrat.pdf"
+          }
+        },
+        "url": {
+          "raw": "{{API_ROOT}}/v2/batches/{{BATCH_ID}}/files/contrat.pdf",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "batches", "{{BATCH_ID}}", "files", "contrat.pdf"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. Lancer classification",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"batch_id\": \"{{BATCH_ID}}\", \"app_name\": \"app_doc_classification\"}"
+        },
+        "url": {
+          "raw": "{{API_ROOT}}/v2/apps/runs",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "apps", "runs"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Classification démarrée\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.exist;",
+              "    pm.collectionVariables.set(\"CLASSIFICATION_RUN_ID\", jsonData.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Vérifier statut classification",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          }
+        ],
+        "url": {
+          "raw": "{{API_ROOT}}/v2/apps/runs/{{CLASSIFICATION_RUN_ID}}",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "apps", "runs", "{{CLASSIFICATION_RUN_ID}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5. Récupérer résultats classification",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          }
+        ],
+        "url": {
+          "raw": "{{API_ROOT}}/v2/apps/runs/{{CLASSIFICATION_RUN_ID}}/results?include_confidence_scores=true",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "apps", "runs", "{{CLASSIFICATION_RUN_ID}}", "results"],
+          "query": [
+            {
+              "key": "include_confidence_scores",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "6. Lancer extraction",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"batch_id\": \"{{BATCH_ID}}\", \"app_name\": \"app_doc_extraction\"}"
+        },
+        "url": {
+          "raw": "{{API_ROOT}}/v2/apps/runs",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "apps", "runs"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Extraction démarrée\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.exist;",
+              "    pm.collectionVariables.set(\"EXTRACTION_RUN_ID\", jsonData.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Vérifier statut extraction",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          }
+        ],
+        "url": {
+          "raw": "{{API_ROOT}}/v2/apps/runs/{{EXTRACTION_RUN_ID}}",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "apps", "runs", "{{EXTRACTION_RUN_ID}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "8. Récupérer résultats extraction",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          }
+        ],
+        "url": {
+          "raw": "{{API_ROOT}}/v2/apps/runs/{{EXTRACTION_RUN_ID}}/results?include_confidence_scores=true&include_source_info=true",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "apps", "runs", "{{EXTRACTION_RUN_ID}}", "results"],
+          "query": [
+            {
+              "key": "include_confidence_scores",
+              "value": "true"
+            },
+            {
+              "key": "include_source_info",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "9. Lancer validation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"batch_id\": \"{{BATCH_ID}}\", \"app_name\": \"app_doc_validation\", \"settings\": {\"runtime_config\": {\"iban_format_check\": true, \"siret_api_validation\": true}}}"
+        },
+        "url": {
+          "raw": "{{API_ROOT}}/v2/apps/runs",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "apps", "runs"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validation démarrée\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.exist;",
+              "    pm.collectionVariables.set(\"VALIDATION_RUN_ID\", jsonData.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Vérifier statut validation",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          }
+        ],
+        "url": {
+          "raw": "{{API_ROOT}}/v2/apps/runs/{{VALIDATION_RUN_ID}}",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "apps", "runs", "{{VALIDATION_RUN_ID}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "11. Récupérer résultats validation",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          }
+        ],
+        "url": {
+          "raw": "{{API_ROOT}}/v2/apps/runs/{{VALIDATION_RUN_ID}}/results?include_validation_results=true",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "apps", "runs", "{{VALIDATION_RUN_ID}}", "results"],
+          "query": [
+            {
+              "key": "include_validation_results",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "12. Supprimer batch",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          }
+        ],
+        "url": {
+          "raw": "{{API_ROOT}}/v2/batches/{{BATCH_ID}}",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "batches", "{{BATCH_ID}}"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Suppression batch démarrée\", function () {",
+              "    pm.response.to.have.status(202);",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.job_id).to.exist;",
+              "    pm.collectionVariables.set(\"JOB_ID\", jsonData.job_id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "13. Vérifier statut suppression",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{API_TOKEN}}"
+          },
+          {
+            "key": "IB-Context",
+            "value": "{{IB_CONTEXT}}"
+          }
+        ],
+        "url": {
+          "raw": "{{API_ROOT}}/v2/batches/jobs/{{JOB_ID}}",
+          "host": ["{{API_ROOT}}"],
+          "path": ["v2", "batches", "jobs", "{{JOB_ID}}"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "API_ROOT",
+      "value": "https://aihub.instabase.com/api",
+      "description": "URL racine de l'API AI Hub"
+    },
+    {
+      "key": "API_TOKEN",
+      "value": "",
+      "description": "Jeton d'API pour l'authentification"
+    },
+    {
+      "key": "IB_CONTEXT",
+      "value": "",
+      "description": "Contexte (user ID ou organization ID)"
+    },
+    {
+      "key": "BATCH_ID",
+      "value": "",
+      "description": "ID du batch créé"
+    },
+    {
+      "key": "CLASSIFICATION_RUN_ID",
+      "value": "",
+      "description": "ID de l'exécution de classification"
+    },
+    {
+      "key": "EXTRACTION_RUN_ID",
+      "value": "",
+      "description": "ID de l'exécution d'extraction"
+    },
+    {
+      "key": "VALIDATION_RUN_ID",
+      "value": "",
+      "description": "ID de l'exécution de validation"
+    },
+    {
+      "key": "JOB_ID",
+      "value": "",
+      "description": "ID du job de suppression"
+    }
+  ]
+}
