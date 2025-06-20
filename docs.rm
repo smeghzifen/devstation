@@ -1,0 +1,43 @@
+# 📚 Documentation technique du projet
+
+Bienvenue dans la documentation technique du projet **MonProjet**.  
+Ce dossier contient l'ensemble des ressources techniques utiles pour la compréhension, la maintenance et l'évolution du système.
+
+---
+
+## 🏗️ Architecture
+
+- [Big Picture (PNG)](architecture/big-picture.png)
+- [Vue des composants](architecture/composants.md)
+- [Journal des décisions d'architecture (ADR)](architecture/decision-log)
+
+---
+
+## 🔁 Diagrammes
+
+### 🔹 Diagrammes de séquence
+- [Login – Diagramme de séquence](diagrams/sequence/login-sequence.puml)
+- [Traitement commande](diagrams/sequence/traitement-commande-sequence.puml)
+
+### 🔹 Diagrammes de classes
+- [Modèle Utilisateur](diagrams/class/modele-utilisateur.puml)
+
+---
+
+## 🔍 OpenAPI / Swagger
+
+- [Spécification principale (OpenAPI)](swagger/openapi.yaml)
+- [Spécification production](swagger/openapi-prod.yaml)
+- [Exemples de requêtes / réponses](swagger/exemples)
+
+---
+
+## 📌 Comment contribuer à la documentation
+
+- Tous les fichiers `.puml` peuvent être visualisés avec [PlantUML](https://plantuml.com/fr/).
+- Les fichiers `.yaml` sont des spécifications OpenAPI 3.
+- Utilisez [Swagger Editor](https://editor.swagger.io/) pour visualiser ou modifier les fichiers `openapi.yaml`.
+
+---
+
+## 📁 Structure du dossier
