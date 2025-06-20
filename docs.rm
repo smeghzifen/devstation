@@ -41,3 +41,9 @@ Ce dossier contient l'ensemble des ressources techniques utiles pour la compréh
 ---
 
 ## 📁 Structure du dossier
+
+docs/
+├── architecture/
+├── diagrams/
+├── swagger/
+└── README.md
