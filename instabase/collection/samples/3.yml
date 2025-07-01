@@ -1,0 +1,149 @@
+openapi: 3.0.3
+info:
+  title: Instabase Document Analysis API
+  description: API pour l'analyse de documents via l'API Instabase AI Hub en utilisant une architecture hexagonale, avec upload de fichiers en Base64 et choix de l'application par fichier.
+  version: 0.0.1
+  contact:
+    name: xAI Support
+    url: https://x.ai/api
+servers:
+  - url: http://localhost:8080
+    description: Serveur local pour développement
+  - url: https://api.instabase-hexagonal.com
+    description: Serveur de production (exemple)
+paths:
+  /api/documents/analysis:
+    post:
+      summary: Lancer l'analyse d'un ou plusieurs documents
+      description: Crée un batch, téléverse les documents encodés en Base64, et optionnellement lance une analyse via l'API Instabase avec une application spécifique par fichier.
+      operationId: analysisDocuments
+      tags:
+        - Documents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentAnalysisRequest'
+      responses:
+        '200':
+          description: Analyse initiée avec succès ou batch créé sans analyse.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResult'
+        '400':
+          description: Requête invalide (ex. : Base64 invalide, fichiers manquants ou appName invalide).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Erreur serveur lors du traitement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/documents/result/{batchId}:
+    get:
+      summary: Récupérer les résultats d'un batch
+      description: Récupère les résultats d'un batch précédemment créé via l'API Instabase.
+      operationId: getBatchResult
+      tags:
+        - Documents
+      parameters:
+        - name: batchId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Identifiant du batch à consulter.
+      responses:
+        '200':
+          description: Résultats du batch récupérés avec succès.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResult'
+        '404':
+          description: Batch non trouvé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Erreur serveur lors de la récupération.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    DocumentAnalysisRequest:
+      type: object
+      properties:
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+          description: Liste des documents à analyser, avec contenu encodé en Base64 et application spécifique.
+        launchAnalysis:
+          type: boolean
+          default: true
+          description: Indique si l'analyse doit être lancée immédiatement pour chaque application spécifiée.
+      required:
+        - documents
+    Document:
+      type: object
+      properties:
+        fileName:
+          type: string
+          description: Nom du fichier (ex. : kbis.pdf).
+          example: kbis.pdf
+        contentBase64:
+          type: string
+          format: byte
+          description: Contenu du fichier encodé en Base64.
+          example: JVBERi0xLjQK... (Base64 string)
+        appName:
+          type: string
+          description: Nom de l'application Instabase pour ce fichier (ex. : app_doc_classification).
+          example: app_doc_classification
+      required:
+        - fileName
+        - contentBase64
+        - appName
+    BatchResult:
+      type: object
+      properties:
+        batchId:
+          type: string
+          description: Identifiant du batch.
+          example: batch_123456
+        status:
+          type: string
+          description: Statut global du traitement (ex. : PENDING, COMPLETE).
+          example: COMPLETE
+        resultDetails:
+          type: string
+          description: Détails des résultats, incluant les résultats par application (JSON brut).
+          example: '{"batch_id": "batch_123456", "runs": [{"app_name": "app_doc_classification", "results": [...]}, {"app_name": "app_doc_extraction", "results": [...}]}'
+      required:
+        - batchId
+        - status
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Message d'erreur.
+          example: Failed to process documents
+        details:
+          type: string
+          description: Détails supplémentaires sur l'erreur.
+          example: Invalid Base64 content
+      required:
+        - error
+tags:
+  - name: Documents
+    description: Opérations liées à l'analyse et à la récupération des résultats des documents.
