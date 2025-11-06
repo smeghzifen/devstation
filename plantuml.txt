@@ -1,0 +1,76 @@
+@startuml
+'====== Style (simple) ======
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam dpi 150
+
+title Architecture JEE - Batch -> protectionFactory -> JMS (JDBC Store) - WebLogic Cluster
+
+' ===== Nodes =====
+node "Load Balancer\n(HTTP/TCP)" as LB {
+}
+
+node "WebLogic Cluster\n(2 nodes)" as WLCluster {
+    node "WL Node 1\n(WebLogic 12c)" as WL1 {
+        component "App: protectionFactory\n(EJB / REST / SOAP)" as Protection1
+    }
+    node "WL Node 2\n(WebLogic 12c)" as WL2 {
+        component "App: protectionFactory\n(EJB / REST / SOAP)" as Protection2
+    }
+}
+
+node "JMS Infrastructure\n(WebLogic JMS)" as JMSInfra {
+    component "JMS Server\nJMS Module" as JMSServer
+    component "Queue: jms/protectionFactoryQueue" as QueueMain
+    component "Queue: protectionFactoryQueue_error" as QueueError
+    component "JMSStore (JDBC)" as JMSStore
+}
+
+database "OracleDB\n(DataSource / JMSStore)" as OracleDB
+
+node "Batch Job Host\n(Standalone Java - JAR)" as BatchHost {
+    component "Batch.jar\n- lit fichier d'entrée\n- executors = 5 threads\n- renomme fichier -> suffixe date" as Batch
+    note right of Batch
+      - Lecture fichier (input dir)
+      - ThreadPool (5 threads)
+      - Appel RPC vers protectionFactory
+      - Rename file -> suffixe date
+    end note
+}
+
+' ===== Connections =====
+LB --> WL1 : traffic/load
+LB --> WL2 : traffic/load
+
+Batch --> LB : Appel RPC / HTTP / RMI vers protectionFactory
+Batch --> Protection1 : RPC (round-robin via LB)
+Batch --> Protection2 : RPC (round-robin via LB)
+
+Protection1 --> QueueMain : push messages (JMS)
+Protection2 --> QueueMain : push messages (JMS)
+
+QueueMain --> QueueError : dead-letter / error routing (on failure)
+JMSServer --> JMSStore : persiste messages
+JMSStore --> OracleDB : JDBC (JMSStore tables)
+
+' Datasource used by apps
+WL1 ..> OracleDB : DataSource (JDBC)
+WL2 ..> OracleDB : DataSource (JDBC)
+
+' Optional: monitoring / admin
+node "Admin / Monitoring" as Admin {
+    component "WebLogic Admin Console\n(Health, JMS, Datasources)" as AdminConsole
+}
+AdminConsole --> WL1
+AdminConsole --> WL2
+AdminConsole --> JMSServer
+AdminConsole --> OracleDB
+
+' Legend
+legend right
+  |= Composants et flux principaux =
+  Batch = traitement en parallèle (5 threads)
+  protectionFactory = composant applicatif qui publie dans JMS
+  JMSStore = stockage JMS utilisant la DB (JDBC)
+endlegend
+@enduml
